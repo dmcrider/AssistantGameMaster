@@ -69,5 +69,14 @@ namespace AssistantGameMaster.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are an assistant to the Game Master for a Dungeons and Dragons 5th Edition campaign. You must provide information only for official material unless explicitly asked to create something new. You should also remind the GM every so often to review and incorporate details from previous sessions and player backstories, but only when appropriate. Do not use markdown - stick to plan text..
+        /// </summary>
+        internal static string SystemMessage {
+            get {
+                return ResourceManager.GetString("SystemMessage", resourceCulture);
+            }
+        }
     }
 }

@@ -1,14 +1,34 @@
 using AssistantGameMaster.Data;
+using AssistantGameMaster.Forms;
+using AssistantGameMaster.Handlers;
+using OpenAI.Chat;
+using System.Reflection;
+using System.Resources;
 
 namespace AssistantGameMaster
 {
     public partial class FormChat : Form
     {
         private readonly List<AppMessage> _chatHistory = [];
+        private ChatClient? _chatClient;
 
         public FormChat()
         {
             InitializeComponent();
+            // Check for an API key and configure the chat client
+            if (Security.HasApiKey())
+            {
+                var config = FileHandler.Instance.GetProviderConfig();
+                if(config.ProviderName == "OpenAI")
+                {
+                    _chatClient = new ChatClient(model: config.ModelName, credential: Security.GetApiKey());
+                }
+            }
+            else
+            {
+                // No API key, show the configuration form
+                ShowConfigureLLMForm();
+            }
         }
 
         private void BtnSend_Click(object sender, EventArgs e)
@@ -16,19 +36,27 @@ namespace AssistantGameMaster
             var msg = txtUserMessage.Text.Trim();
             if (!string.IsNullOrEmpty(msg))
             {
-                AddChatMessage(msg, true);
-                AddChatMessage("I'm sorry, I'm not yet connected to an LLM.", false);
                 txtUserMessage.Clear();
+                txtUserMessage.Enabled = false;
+                btnSend.Enabled = false;
+
+                AddChatMessage(msg, true);
+                GetSystemMessage();
+
                 txtUserMessage.Focus();
+                txtUserMessage.Enabled = true;
+                btnSend.Enabled = true;
             }
         }
 
-        private void AddChatMessage(string message, bool isUserMessage)
+        private int AddChatMessage(string message, bool isUserMessage)
         {
             var chatMessage = new AppMessage(message, isUserMessage);
             var lastLabel = panelActiveChat.Controls.Count > 0 ? panelActiveChat.Controls[0] as Label : null;
 
-            var msgLabel = chatMessage.GetLabel(panelActiveChat.ClientSize.Width);
+            var msgLabel = chatMessage.GetMessageBubble(panelActiveChat.ClientSize.Width);
+
+            msgLabel.Text = message;
 
             // Add the label so we can get its correct size
             panelActiveChat.Controls.Add(msgLabel);
@@ -40,6 +68,53 @@ namespace AssistantGameMaster
 
             panelActiveChat.ScrollControlIntoView(msgLabel);
             _chatHistory.Add(chatMessage);
+
+            return panelActiveChat.Controls.IndexOf(msgLabel); // Return the index of the new label so the GetSystemMethod can update it
+        }
+
+        private void UpdateChatMessage(int index, string message)
+        {
+            var label = panelActiveChat.Controls[index] as Label;
+            if(label != null)
+            {
+                label.Text = message;
+            }
+        }
+
+        private void GetSystemMessage()
+        {
+            if(_chatClient == null)
+            {
+                MessageBox.Show("No chat client configured.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            var history = new List<ChatMessage>
+            {
+                new SystemChatMessage(new ResourceManager("AssistantGameMaster.Properties.Resources", Assembly.GetExecutingAssembly()).GetString("SystemMessage"))
+            };
+            history.AddRange(_chatHistory.Select(x => x.ConvertToOpenAI()).ToList());
+
+            var chatCompletion = _chatClient.CompleteChatStreaming(history);
+            var response = string.Empty;
+            var index = -1;
+            foreach(var update in chatCompletion)
+            {
+                foreach(var updatePart in update.ContentUpdate)
+                {
+                    response += updatePart;
+                    if(index < 0)
+                    {
+                        index = AddChatMessage(response, false);
+                    }
+                    else
+                    {
+                        UpdateChatMessage(index, response);
+                    }
+                    panelActiveChat.Invalidate();
+                    Application.DoEvents();
+                }
+            }
+
         }
 
         private Point CalculateMessagePosition(Label newLabel, Label? lastLabel, bool isUserMessage)
@@ -83,7 +158,7 @@ namespace AssistantGameMaster
 
         private void ConfigureLLMToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Show the LLM Configuration form
+            ShowConfigureLLMForm();
         }
 
         private void ConfigureCampaignDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,5 +188,25 @@ namespace AssistantGameMaster
             // Show the feedback form
         }
         #endregion
+
+        private void ShowConfigureLLMForm()
+        {
+            var form = new FormConfigureLLM();
+            var result = form.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                if (form.OpenAIClient == null)
+                {
+                    MessageBox.Show("Failed to configure LLM model.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                _chatClient = form.OpenAIClient;
+            }
+            else
+            {
+                Application.Exit();
+            }
+        }
     }
 }

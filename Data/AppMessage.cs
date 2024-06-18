@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenAI.Chat;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace AssistantGameMaster.Data
         public bool IsUserMessage { get; set; } = isUserMessage;
         public DateTime TimeStamp { get; set; } = DateTime.Now;
 
-        public Label GetLabel(int clientWidth)
+        public Label GetMessageBubble(int clientWidth)
         {
             var msgLabel = new Label
             {
@@ -27,6 +28,11 @@ namespace AssistantGameMaster.Data
             };
 
             return msgLabel;
+        }
+
+        public ChatMessage ConvertToOpenAI()
+        {
+            return IsUserMessage ? new UserChatMessage(Message) : new AssistantChatMessage(Message);
         }
 
         public override string ToString()

@@ -69,7 +69,7 @@
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Size = new Size(93, 22);
             exitToolStripMenuItem.Text = "&Exit";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 
@@ -83,21 +83,21 @@
             // chatHistoryToolStripMenuItem
             // 
             chatHistoryToolStripMenuItem.Name = "chatHistoryToolStripMenuItem";
-            chatHistoryToolStripMenuItem.Size = new Size(180, 22);
+            chatHistoryToolStripMenuItem.Size = new Size(140, 22);
             chatHistoryToolStripMenuItem.Text = "&Chat History";
             chatHistoryToolStripMenuItem.Click += ChatHistoryToolStripMenuItem_Click;
             // 
             // newChatToolStripMenuItem
             // 
             newChatToolStripMenuItem.Name = "newChatToolStripMenuItem";
-            newChatToolStripMenuItem.Size = new Size(180, 22);
+            newChatToolStripMenuItem.Size = new Size(140, 22);
             newChatToolStripMenuItem.Text = "&New Chat";
             newChatToolStripMenuItem.Click += NewChatToolStripMenuItem_Click;
             // 
             // deleteChatToolStripMenuItem
             // 
             deleteChatToolStripMenuItem.Name = "deleteChatToolStripMenuItem";
-            deleteChatToolStripMenuItem.Size = new Size(180, 22);
+            deleteChatToolStripMenuItem.Size = new Size(140, 22);
             deleteChatToolStripMenuItem.Text = "&Delete Chat";
             deleteChatToolStripMenuItem.Click += DeleteChatToolStripMenuItem_Click;
             // 
@@ -146,14 +146,14 @@
             // versionToolStripMenuItem
             // 
             versionToolStripMenuItem.Name = "versionToolStripMenuItem";
-            versionToolStripMenuItem.Size = new Size(180, 22);
+            versionToolStripMenuItem.Size = new Size(153, 22);
             versionToolStripMenuItem.Text = "&Version";
             versionToolStripMenuItem.Click += VersionToolStripMenuItem_Click;
             // 
             // feedbackToolStripMenuItem
             // 
             feedbackToolStripMenuItem.Name = "feedbackToolStripMenuItem";
-            feedbackToolStripMenuItem.Size = new Size(180, 22);
+            feedbackToolStripMenuItem.Size = new Size(153, 22);
             feedbackToolStripMenuItem.Text = "&Send Feedback";
             feedbackToolStripMenuItem.Click += FeedbackToolStripMenuItem_Click;
             // 
